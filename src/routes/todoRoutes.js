@@ -52,7 +52,7 @@ router.put('/:id', async (req, res) => {
     /*  req.query	
         1. Data src = URL query string	
         2. Usage = Optional data like filtering, sorting, or pagination.	
-        3. Example URL = /search?q=nodejs&page=2	
+        3. Example URL = /search?q=users&page=4	
         4. Example Code = 
         app.get('/search', (req, res) => {
         console.log(req.query.q); // "nodejs"

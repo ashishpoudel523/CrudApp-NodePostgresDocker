@@ -44,7 +44,7 @@ router.post('/register', async (req, res) => {
 })
 
 router.post('/login', async (req, res) => {
-    // we get their email, and we look up the password associated with that email in the database
+    // we get their email, and we look up the password associated with that email in the database where user is registered
     // but we get it back and see it's encrypted, which means that we cannot compare it to the one the user just used trying to login
     // so what we can to do, is again, one way encrypt the password the user just entered
 
