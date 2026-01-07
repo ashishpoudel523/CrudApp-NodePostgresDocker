@@ -21,7 +21,6 @@ router.post('/register', async (req, res) => {
                 username,
                 password: hashedPassword
             }
-
         })
 
         // now that we have a user, I want to add their first todo for them
@@ -43,7 +42,7 @@ router.post('/register', async (req, res) => {
 })
 
 router.post('/login', async (req, res) => {
-    // we get their email, and we look up the password associated with that email in the database where user is registered
+    // we get their email, and we look up the password associated with that email in the database
     // but we get it back and see it's encrypted, which means that we cannot compare it to the one the user just used trying to login
     // so what we can to do, is again, one way encrypt the password the user just entered
 
@@ -52,7 +51,7 @@ router.post('/login', async (req, res) => {
     try {
         const user = await prisma.user.findUnique({
             where: {
-                username: username,
+                username: username
             }
         })
 
@@ -71,6 +70,7 @@ router.post('/login', async (req, res) => {
         console.log(err.message)
         res.sendStatus(503)
     }
+
 })
 
 

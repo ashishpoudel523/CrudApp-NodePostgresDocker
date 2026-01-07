@@ -1,15 +1,10 @@
-npm i prisma @prisma/client pg
-npx prisma init
-(npx is used over npm to run packages without installing them globally)
-
-# BACKEND FULL COURSE - Node.JS Express.JS & Node:SQLite
+# BACKEND FULL COURSE - Node.JS Express.JS Prisma PostgreSQL & Docker
 
 This guide provides an overview of the codebase, the functionality of the app, and detailed instructions on how to set up and run the app. Make sure to follow all steps carefully, especially regarding Node.js version requirements.
 
 ## Overview
 
-This is an authentication-protected Todo App using **Node.js**, **Express.js**, **bcrypt**, **JWT authentication**, and **SQLite**. The app allows users to:
-
+This is an **Dockerized** and authentication-protected Todo App using **Node.js**, **Express.js**, **bcrypt**, **JWT authentication**, **Prisma**, and **PostgreSQL**. The app allows users to:
 - **Register**: Create a new account.
 - **Login**: Authenticate and receive a JWT token.
 - **Manage Todos**: Perform auth protected CRUD operations on their own todo tasks after logging in.
@@ -24,6 +19,10 @@ backend-todo-app/
 ├── public/
 │   └── index.html              # The frontend HTML file for authentication and todo management
 │
+├── prisma/
+│   ├── schema.prisma           # The frontend HTML file for authentication and todo management
+│   └── migrations/             #
+│
 ├── src/
 │   ├── controllers/            # (Optional) For future separation of concerns
 │   └── middlewares/
@@ -31,71 +30,44 @@ backend-todo-app/
 │   └── routes/
 │       └── authRoutes.js        # Routes for user registration and login
 │       └── todoRoutes.js        # Routes for authenticated CRUD operations on todos
-│   └── db.js                    # SQLite database setup and table creation
+│   └── prismaClient.js          # Prisma client database setup and table creation
 │   └── server.js                # Main server entry point that sets up routing and middleware
 │
-├── .env                         # Environment variables for the project
+├── Dockerfile                   # Docker container setup instructions
+├── docker-compose.yaml          # Docker setup config file
 ├── package.json                 # Project dependencies and scripts
 ├── package-lock.json            # Lockfile for exact dependency versions
 └── todo-app.rest                # REST client file for emulating API requests
 ```
 
-This complete structure reflects all important directories and files, allowing for easy navigation of the project.
+### Explanation of Key Directories and Files
 
-### Key Directories and Files
+- **`prisma/`**: Contains Prisma's schema (`schema.prisma`) and migration files. After each schema change, migration files are generated here to apply database changes.
+- **`public/`**: Contains the frontend HTML file. This file interacts with the backend API for user registration, login, and todo management.
+- **`src/`**: The core backend code.
+  - **`controllers/`** (optional): A directory to organize logic and separate it from the routes if needed in the future.
+  - **`middlewares/`**: Contains middleware for handling JWT-based authentication, protecting routes that require authentication.
+  - **`routes/`**: Contains API routes for handling authentication and CRUD operations for todos.
+  - **`prismaClient.js`**: Sets up the Prisma client for database interaction.
+  - **`server.js`**: The entry point for the Express.js application, which configures the app, routes, and middleware.
+- **`.env`**: Stores environment variables like `DATABASE_URL` and `JWT_SECRET`. These variables are used to configure Prisma, JWT, and database connections.
+- **`Dockerfile`**: The Dockerfile for building the Node.js application in a containerized environment.
+- **`docker-compose.yaml`**: Configuration for Docker Compose, which sets up both the Node.js app and PostgreSQL in separate containers.
+- **`package.json`**: Defines the Node.js dependencies and scripts used to run the application (e.g., `npm start`).
+- **`README.md`**: Project documentation, including setup instructions and directory structure (this file).
 
-- **`public/index.html`**: Frontend HTML for authentication and todo management.
-- **`src/middlewares/authMiddleware.js`**: Middleware to protect routes using JWT.
-- **`src/routes/authRoutes.js`**: Handles user registration and login.
-- **`src/routes/todoRoutes.js`**: Handles CRUD operations for todos, protected by authentication.
-- **`src/db.js`**: Initializes SQLite database and creates tables.
-- **`src/server.js`**: Sets up the Express server, middleware, and routing.
-- **`todo-app.rest`**: REST client file for emulating HTTP requests (registration, login, CRUD).
+### Example Workflow
 
-## Node.js Version and Flags
+1. **Define or Update Schema**: Modify the `schema.prisma` file to change your database structure.
+2. **Create Migrations**: Use Prisma to generate and apply migrations.
+3. **Run Docker Compose**: Build and run the Node.js app and PostgreSQL using Docker Compose.
+4. **Interact with the API**: Use the frontend or API client (e.g., Postman) to register, login, and manage todos.
 
-The app requires **Node.js version 22 or higher** and uses experimental features. If you're using a lower version, you will need to upgrade.
-
-### Checking and Modifying Node.js Version
-
-To check your current Node.js version:
-
-```bash
-node -v
-```
-
-To install or switch Node versions, use **nvm** (Node Version Manager). If you don’t have `nvm` installed, follow the instructions [here](https://github.com/nvm-sh/nvm).
-
-```bash
-nvm install 22
-nvm use 22
-```
-
-Once the appropriate version is installed, start the app with the following flags:
-
-```bash
-node --env-file=.env --experimental-sqlite ./src/server.js
-```
-
-### Changing the Localhost Port to 3000
-
-By default, the app runs on port 5000. If you want to run it on **localhost:3000**, you can modify the `.env` file:
-
-1. Open `.env` and change the `PORT` variable to 3000:
-
-```bash
-PORT=3000
-```
-
-2. Restart the server using the updated environment configuration:
-
-```bash
-npm start
-```
-
-Now the app will be accessible at `http://localhost:3000`.
+This project structure and workflow will help organize your code and make it easier to maintain and scale as your application grows.
 
 ## Getting Started
+
+0. **Install Docker Desktop**
 
 1. **Clone the Repository**:
 
@@ -104,52 +76,47 @@ git clone https://github.com/your-username/backend-todo-app.git
 cd backend-todo-app
 ```
 
-2. **Install Dependencies**:
+2. **Generate the Prisma Client**:
 
-Install all the required packages:
+`npx prisma generate`
 
-```bash
-npm install express bcryptjs jsonwebtoken
-```
+3. **Build your docker images**:
 
-3. **Install Developer Dependencies**
+`docker compose build`
 
-```bash
-npm install --save-dev nodemon
-```
+4. **Create PostgreSQL migrations and apply them**:
 
-4. **Update The `package.json` Description**
+`docker compose run app npx prisma migrate dev --name init`
 
-- A Node.js To-do app with Express, Prisma, and JWT authentication.
+*Also* - to run/apply migrations if necessary:
 
-5. **Update The `package.json` Scripts**
+`docker-compose run app npx prisma migrate deploy`
 
-```javascript
- "scripts": {
-    "dev": "nodemon --env-file=.env --experimental-sqlite ./src/server.js",
-  },
-```
+5. **Boot up 2x docker containers**:
 
-6. **Set Up Environment Variables**:
+`docker compose up`
 
-In the `.env` file, define your environment variables:
+*or*
 
-```bash
-JWT_SECRET=your_jwt_secret_here
-PORT=5000 # Or change to 3000 if preferred
-```
+`docker compose up -d`
 
-7. **Run the Server**:
+If you want to boot it up without it commandeering your terminal (you'll have to stop if via Docker Desktop though).
 
-Ensure you are using Node.js v22 or higher with experimental flags:
+6. **To login to docker PostgreSQL database (from a new terminal instance while docker containers are running) where you can run SQL commands and modify database!**:
 
-```bash
-npm run dev
-```
+`docker exec -it postgres-db psql -U postgres -d todoapp`
 
-8. **Access the App**:
+7. **To stop Docker containers**:
 
-Open `http://localhost:5000` (or `localhost:3000` if changed) in your browser to see the frontend. You can register, log in, and manage your todo list from there.
+`docker compose down`
+
+8. **To delete all docker containers**:
+
+`docker system prune`
+
+9. **Access the App**:
+
+Open `http://localhost:5003` (or `localhost:3000` if changed) in your browser to see the frontend. You can register, log in, and manage your todo list from there.
 
 ## Emulating HTTP Requests (REST Client)
 
@@ -158,7 +125,6 @@ The **REST Client** file (`todo-app.rest`) is provided to help you test the API 
 ### `todo-app.rest`
 
 The `todo-app.rest` file includes requests for:
-
 - **Registering a user**: Sends a `POST` request to create a new user.
 - **Logging in**: Sends a `POST` request to authenticate a user and retrieve a JWT token.
 - **Fetching todos**: Sends a `GET` request to fetch the authenticated user's todos (JWT required).
@@ -176,3 +142,4 @@ The `todo-app.rest` file includes requests for:
 ## Conclusion
 
 This guide covers the main components of the app and how to get it up and running on your local machine. It highlights key considerations for Node.js version compatibility and provides a ready-to-use `todo-app.rest` file for testing. You can now explore the app's functionality, including authentication and CRUD operations on todos!
+
